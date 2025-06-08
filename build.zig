@@ -31,32 +31,15 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    // for (includes) |include| {
-    //     exe.addIncludePath(b.path(include));
-    // }
-    exe.addIncludePath(b.path("src/"));
-    exe.addIncludePath(b.path("include/"));
-    exe.addIncludePath(b.path("utils/"));
-    exe.addIncludePath(b.path("src/binary/"));
-    exe.addIncludePath(b.path("src/binary/arch/"));
-    exe.addIncludePath(b.path("src/binary/encoding/"));
-    exe.addIncludePath(b.path("src/binary/encoding/amd64/"));
-    exe.addIncludePath(b.path("src/binary/encoding/arm64/"));
-    exe.addIncludePath(b.path("src/binary/elf/"));
-    exe.addIncludePath(b.path("src/binary/mach/"));
-    exe.addIncludePath(b.path("src/build/"));
-    exe.addIncludePath(b.path("src/debug/"));
-    exe.addIncludePath(b.path("src/lower/"));
-    exe.addIncludePath(b.path("src/native/"));
-    exe.addIncludePath(b.path("src/register/"));
-    exe.addIncludePath(b.path("src/semantic/"));
-    exe.addIncludePath(b.path("src/symbol/"));
-    exe.addIncludePath(b.path("src/syntax/"));
+    exe.addIncludePath(.{ .cwd_relative = "./" });
+    exe.addIncludePath(.{ .cwd_relative = "./include/" });
+    exe.addIncludePath(.{ .cwd_relative = "./utils/" });
 
-    exe.addIncludePath(b.path("cmd/"));
-    exe.addIncludePath(b.path("config/"));
+    exe.root_module.addCMacro("__LINUX", "1");
+    exe.root_module.addCMacro("__AMD64", "1");
+    // exe.root_module.addCMacro("_GNU_SOURCE", "");
 
-    exe.addCSourceFiles(.{ .files = nature_main, .flags = &.{} });
+    exe.addCSourceFiles(.{ .files = nature_main, .flags = &.{"-std=gnu11"} });
     exe.addCSourceFiles(.{ .files = nature_src, .flags = &.{} });
     exe.addCSourceFiles(.{ .files = nature_src_syntax, .flags = &.{} });
     exe.addCSourceFiles(.{ .files = nature_src_symbol, .flags = &.{} });
@@ -72,6 +55,8 @@ pub fn build(b: *std.Build) void {
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
     b.installArtifact(exe);
+
+    //install
 
     // This *creates* a Run step in the build graph, to be executed when another
     // step is evaluated that depends on it. The next line below will establish
@@ -208,93 +193,35 @@ const nature_utils = &.{
 };
 
 const includes: []const []const u8 = &.{
-    //utils
-    "utils/assertf.h",
-    "utils/autobuf.h",
-    "utils/bitmap.h",
-    "utils/ct_list.h",
-    "utils/custom_links.h",
-    "utils/error.h",
-    "utils/exec.h",
-    "utils/helper.h",
-    "utils/linked.h",
-    "utils/log.h",
-    "utils/helper.h",
-    "utils/mutex.h",
-    "utils/picohttpparser.h",
-    "utils/sc_map.h",
-    "utils/slice.h",
-    "utils/stack.h",
-    "utils/string_view.h",
-    "utils/table.h",
-    "utils/toml.h",
-    "utils/type.h",
-    "utils/uthash.h",
+    "utils/",
+    "cmd/",
+    "include/mach/",
+    "include/mach-o/",
+    "include/uv/",
+    "include/",
 
-    "cmd/root.h",
-    "include/mach/machine.h",
-    "include/mach/vm_prot.h",
-    "include/mach-o/loader.h",
-    "include/mach-o/nlist.h",
-    "include/mach-o/reloc.h",
-    "include/uv/darwin.h",
-    "include/uv/errno.h",
-    "include/uv/linux.h",
-    "include/uv/threadpool.h",
-    "include/uv/unix.h",
-    "include/uv/version.h",
-    "include/uv.h",
-    "include/yaml.h",
+    "src/binary/arch/",
+    "src/binary/elf/",
+    "src/binary/encoding/",
+    "src/binary/mach/",
 
-    "src/binary/arch/amd64.h",
-    "src/binary/arch/arm64.h",
-    "src/binary/elf/assembler.h",
-    "src/binary/elf/elf.h",
-    "src/binary/encoding/amd64/asm.h",
-    "src/binary/encoding/amd64/opcode.h",
-    "src/binary/encoding/arm64/asm.h",
-    "src/binary/encoding/arm64/opcode.h",
-    "src/binary/mach/mach.h",
-
+    "src/build/",
     "src/build/build.h",
-    "src/build/config.h",
 
-    "src/native/amd64.h",
-    "src/native/arm64.h",
+    "src/native",
 
-    "src/debug/debug.h",
-    "src/debug/debug_asm.h",
-    "src/debug/debug_lir.h",
+    "src/debug/",
 
-    "src/lower/amd64.h",
-    "src/lower/arm64.h",
-    "src/lower/amd64_abi.h",
-    "src/lower/arm64_abi.h",
+    "src/lower/",
 
-    "src/register/arch/amd64.h",
-    "src/register/arch/arm64.h",
-    "src/register/allocate.h",
-    "src/register/interval.h",
-    "src/register/linearscan.h",
-    "src/register/register.h",
+    "src/register/arch/",
+    "src/register/",
 
-    "src/semantic/analyzer.h",
-    "src/semantic/infer.h",
+    "src/semantic/",
 
-    "src/symbol/symbol.h",
+    "src/symbol/",
 
-    "src/syntax/parser.h",
-    "src/syntax/scanner.h",
-    "src/syntax/token.h",
+    "src/syntax/",
 
-    "src/ast.h",
-    "src/cfg.h",
-    "src/error.h",
-    "src/linear.h",
     "src/lir.h",
-    "src/module.h",
-    "src/package.h",
-    "src/simd.h",
-    "src/ssa.h",
-    "src/types.h",
 };
